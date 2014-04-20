@@ -9,7 +9,6 @@ begin
   vm = Vm.new ARGV[0]
   vm.run
 rescue StandardError => e
-  msg = "Standard error of type: #{e.class.name} with message: #{e.message}"
-  puts msg
+  puts "Standard error of type: #{e.class.name} with message: #{e.message}"
   puts e.backtrace.inspect
 end

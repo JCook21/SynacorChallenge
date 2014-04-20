@@ -1,4 +1,4 @@
-# Module containing constants and opcode methods for the SynacorChallenge
+# Module containing constants and methods for the SynacorChallenge
 module SynacorChallenge
   MODULO = 32_768
 
@@ -29,22 +29,49 @@ module SynacorChallenge
     21 => 'noop'
   }
 
-  def initialize(binary_path)
-    @stack = []
-    @registers = Array.new(8, 0)
-    @counter = 0
-    load_data binary_path
+  def run
+    loop do
+      key = next_instruction
+      opcode = OPCODES[key]
+      fail "Opcode #{key} not implemented" unless opcode
+      send(opcode)
+    end
   end
 
   protected
 
-  def load_data(binary_path)
-    path = Pathname.new(binary_path.to_s)
-    fail SystemExit, "Path #{binary_path} does not exist" unless path.exist?
-    File.open(path.to_s, 'rb') do |file|
-      @memory = Array.new(MODULO)
-      @memory = file.read.unpack('v*')
+  def next_instruction
+    data = raw_instruction
+    case
+    when data > MAX_INT && register?(data)
+      key = register_id(data)
+      data = @registers[key]
+    when data > MAX_INT
+      fail RangeError, "Data #{data} is greater than MAX_INT #{MAX_INT}"
     end
+    data
+  end
+
+  def register?(instruction)
+    instruction > MAX_INT && instruction <= MAX_INT + @registers.count
+  end
+
+  def register_id(instruction)
+    instruction - MODULO
+  end
+
+  def raw_instruction
+    instruction = @memory[@counter]
+    @counter += 1
+    instruction
+  end
+
+  def target_register
+    instruction = Integer(raw_instruction)
+    unless (32_768..32_775).include?(instruction)
+      fail RangeError, "Data #{instruction} is out of register range"
+    end
+    register_id instruction
   end
 
   def two_values
