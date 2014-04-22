@@ -18,7 +18,6 @@ class Vm
     path = Pathname.new(binary_path.to_s)
     fail SystemExit, "Path #{binary_path} does not exist" unless path.exist?
     File.open(path.to_s, 'rb') do |file|
-      @memory = Array.new
       @memory = file.read.unpack('v*')
     end
   end

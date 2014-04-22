@@ -68,7 +68,7 @@ module SynacorChallenge
 
   def target_register
     instruction = Integer(raw_instruction)
-    unless (32_768..32_775).include?(instruction)
+    unless (MODULO..32_775).include?(instruction)
       fail RangeError, "Data #{instruction} is out of register range"
     end
     register_id instruction
